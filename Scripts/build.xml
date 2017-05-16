@@ -1,0 +1,59 @@
+<project name="Sample usage of Salesforce Ant tasks" default="all" basedir="." xmlns:sonar="antlib:org.sonar.ant" xmlns:sf="antlib:com.salesforce">
+
+
+<property name="sonar.host.url" value="http://localhost:9000" />
+
+<property name="sonar.projectKey" value="Dev_222" />
+<property name="sonar.projectName" value="SFDC_COPY" />
+<property name="sonar.projectVersion" value="2.0" />
+<property name="sonar.sources" value="src" />
+<!--property name="sonar.java.binaries" value="build" /-->
+<property name="sonar.apex.libraries" value="lib/*.jar" />
+<!--property name="sonar.apex.libraries" value="**/*.cls" /-->
+    
+	
+
+    <!-- Setting default value for username, password and session id properties to empty string 
+         so unset values are treated as empty. Without this, ant expressions such as ${sf.username}
+         will be treated literally.
+    -->
+   
+   
+   <path id="pmd.classpath">
+    <!--pathelement location="${build}"/-->
+	<pathelement location="../ant-salesforce.jar"/>
+    <fileset dir="src">
+        <include name="lib/ant-salesforce.jar"/>
+    </fileset>
+</path>
+
+<taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask" classpathref="pmd.classpath"/>
+
+<taskdef resource="com/salesforce/antlib.xml" uri="antlib:com.salesforce">
+        <classpath>
+            <pathelement location="lib/ant-salesforce.jar" />        	
+        </classpath>
+    </taskdef>
+
+<target name="pmd">
+      <pmd rulesetfiles="ApexRules.xml">
+          <formatter type="html" toFile="pmd_report.html" toConsole="true"/>
+          <fileset dir="src">
+              <include name="**/*.cls"/>
+          </fileset>
+      </pmd>
+	  <sonar:sonar />
+</target>
+     
+	
+	<target name="sonar" depends="pmd">
+    <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
+        <!-- Update the following line, or put the "sonarqube-ant-task-*.jar" file in your "$HOME/.ant/lib" folder -->
+        <classpath path="../lib/sonarqube-ant-task-*.jar" />
+    </taskdef>
+ 
+    <!-- Execute SonarQube Scanner for Ant Analysis -->
+    <sonar:sonar />
+</target>
+	
+</project>
